@@ -1,4 +1,5 @@
 # CS490-maskmap
+* Developer: Tu Yueru
 * Run Instruction
   * Preparation:
     * install node.js
