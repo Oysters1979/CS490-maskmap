@@ -97,7 +97,7 @@
               'orange':  (item.properties.mask_adult + item.properties.mask_child) < 3000
                 && (item.properties.mask_adult + item.properties.mask_child) >= 1000,
               'highlight': (item.properties.mask_adult + item.properties.mask_child) >= 3000}"
-              @click="penTo(item)">
+              @click="penTo2(item)">
               <h3>{{ item.properties.name }}</h3>
               <p class="mb-0">
                 Adult: {{ item.properties.mask_adult}}  |  Child:
@@ -127,7 +127,7 @@
               'orange':  (item.properties.mask_adult + item.properties.mask_child) < 3000
                 && (item.properties.mask_adult + item.properties.mask_child) >= 1000,
               'highlight': (item.properties.mask_adult + item.properties.mask_child) >= 3000}"
-              @click="penTo(item)">
+              @click="penTo2(item)">
               <h3>{{ item.properties.name }}</h3>
               <p class="mb-0">
                 Adult: {{ item.properties.mask_adult}}  |  Child:
@@ -157,7 +157,7 @@
               'orange':  (item.properties.mask_adult + item.properties.mask_child) < 3000
                 && (item.properties.mask_adult + item.properties.mask_child) >= 1000,
               'highlight': (item.properties.mask_adult + item.properties.mask_child) >= 3000}"
-              @click="penTo(item)">
+              @click="penTo2(item)">
               <h3>{{ item.properties.name }}</h3>
               <p class="mb-0">
                 Adult: {{ item.properties.mask_adult}}  |  Child:
@@ -352,16 +352,20 @@ import cityName from './assets/cityName.json';
 let osmMap = {};
 
 let userLocation = {};
-let userLat = {};
-let userLng = {};
+let userLat = 0;
+let userLng = 0;
+
 navigator.geolocation.getCurrentPosition((pos) => {
   userLocation = pos.coords;
 });
-userLat = userLocation.latitude;
-userLng = userLocation.longitude;
-// for developing we change the user's location to Xinyi District's position
-userLat = 25.033671;
-userLng = 121.56442;
+
+if (userLat > 22 && userLat < 26 && userLng > 120 && userLng < 122) {
+  userLat = userLocation.latitude;
+  userLng = userLocation.longitude;
+} else {
+  userLat = 25.033671;
+  userLng = 121.56442;
+}
 
 const iconsConfig = {
   iconSize: [25, 41],
@@ -486,6 +490,46 @@ const osm = {
     <small>Last updated: ${item.updated}</small>`);
     }
   },
+  addMapMarker2(x, y, item) {
+    if (item.mask_adult + item.mask_child === 0) {
+      const icon = icons.grey;
+      L.marker([y, x], { icon }).addTo(osmMap).bindPopup(`<strong>${item.name}</strong> <br>
+    Mask left: <strong>Adult - ${item.mask_adult ? `${item.mask_adult}` : 'access error'}/ Child - ${item.mask_child ? `${item.mask_child}` : 'access error'}</strong><br>
+    Address: <a href="https://www.google.com.tw/maps/place/${item.address}" target="_blank">${item.address}</a><br>
+    Distance: ${this.getDistance(x, y, userLng, userLat)} km<br>
+    Tele: ${item.phone}<br>
+    Note: ${item.note}<br>
+    <small>Last updated: ${item.updated}</small>`);
+    } else if (item.mask_adult + item.mask_child > 0 && item.mask_adult + item.mask_child < 1000) {
+      const icon = icons.red;
+      L.marker([y, x], { icon }).addTo(osmMap).bindPopup(`<strong>${item.name}</strong> <br>
+    Mask left: <strong>Adult - ${item.mask_adult ? `${item.mask_adult}` : 'access error'}/ Child - ${item.mask_child ? `${item.mask_child}` : 'access error'}</strong><br>
+    Address: <a href="https://www.google.com.tw/maps/place/${item.address}" target="_blank">${item.address}</a><br>
+    Distance: ${this.getDistance(x, y, userLng, userLat)} km<br>
+    Tele: ${item.phone}<br>
+    Note: ${item.note}<br>
+    <small>Last updated: ${item.updated}</small>`);
+    } else if (item.mask_adult + item.mask_child >= 1000
+      && item.mask_adult + item.mask_child < 3000) {
+      const icon = icons.orange;
+      L.marker([y, x], { icon }).addTo(osmMap).bindPopup(`<strong>${item.name}</strong> <br>
+    Mask left: <strong>Adult - ${item.mask_adult ? `${item.mask_adult}` : 'access error'}/ Child - ${item.mask_child ? `${item.mask_child}` : 'access error'}</strong><br>
+    Address: <a href="https://www.google.com.tw/maps/place/${item.address}" target="_blank">${item.address}</a><br>
+    Distance: ${this.getDistance(x, y, userLng, userLat)} km<br>
+    Tele: ${item.phone}<br>
+    Note: ${item.note}<br>
+    <small>Last updated: ${item.updated}</small>`);
+    } else {
+      const icon = icons.green;
+      L.marker([y, x], { icon }).addTo(osmMap).bindPopup(`<strong>${item.name}</strong> <br>
+    Mask left: <strong>Adult - ${item.mask_adult ? `${item.mask_adult}` : 'access error'}/ Child - ${item.mask_child ? `${item.mask_child}` : 'access error'}</strong><br>
+    Address: <a href="https://www.google.com.tw/maps/place/${item.address}" target="_blank">${item.address}</a><br>
+    Distance: ${this.getDistance(x, y, userLng, userLat)} km<br>
+    Tele: ${item.phone}<br>
+    Note: ${item.note}<br>
+    <small>Last updated: ${item.updated}</small>`);
+    }
+  },
   removeMapMarker() {
     osmMap.eachLayer((layer) => {
       if (layer instanceof L.Marker) {
@@ -571,6 +615,46 @@ const osm = {
     <small>Last updated: ${item.updated}</small>`).openPopup();
     }
   },
+  penTo2(x, y, item) {
+    if (item.mask_adult + item.mask_child === 0) {
+      const icon = icons.grey;
+      L.marker([y, x], { icon }).addTo(osmMap).bindPopup(`<strong>${item.name}</strong> <br>
+    Mask left: <strong>Adult - ${item.mask_adult ? `${item.mask_adult}` : 'access error'}/ Child - ${item.mask_child ? `${item.mask_child}` : 'access error'}</strong><br>
+    Address: <a href="https://www.google.com.tw/maps/place/${item.address}" target="_blank">${item.address}</a><br>
+    Distance: ${this.getDistance(x, y, userLng, userLat)} km<br>
+    Tele: ${item.phone}<br>
+    Note: ${item.note}<br>
+    <small>Last updated: ${item.updated}</small>`).openPopup();
+    } else if (item.mask_adult + item.mask_child > 0 && item.mask_adult + item.mask_child < 1000) {
+      const icon = icons.red;
+      L.marker([y, x], { icon }).addTo(osmMap).bindPopup(`<strong>${item.name}</strong> <br>
+    Mask left: <strong>Adult - ${item.mask_adult ? `${item.mask_adult}` : 'access error'}/ Child - ${item.mask_child ? `${item.mask_child}` : 'access error'}</strong><br>
+    Address: <a href="https://www.google.com.tw/maps/place/${item.address}" target="_blank">${item.address}</a><br>
+    Distance: ${this.getDistance(x, y, userLng, userLat)} km<br>
+    Tele: ${item.phone}<br>
+    Note: ${item.note}<br>
+    <small>Last updated: ${item.updated}</small>`).openPopup();
+    } else if (item.mask_adult + item.mask_child >= 1000
+      && item.mask_adult + item.mask_child < 3000) {
+      const icon = icons.orange;
+      L.marker([y, x], { icon }).addTo(osmMap).bindPopup(`<strong>${item.name}</strong> <br>
+    Mask left: <strong>Adult - ${item.mask_adult ? `${item.mask_adult}` : 'access error'}/ Child - ${item.mask_child ? `${item.mask_child}` : 'access error'}</strong><br>
+    Address: <a href="https://www.google.com.tw/maps/place/${item.address}" target="_blank">${item.address}</a><br>
+    Distance: ${this.getDistance(x, y, userLng, userLat)} km<br>
+    Tele: ${item.phone}<br>
+    Note: ${item.note}<br>
+    <small>Last updated: ${item.updated}</small>`).openPopup();
+    } else {
+      const icon = icons.green;
+      L.marker([y, x], { icon }).addTo(osmMap).bindPopup(`<strong>${item.name}</strong> <br>
+    Mask left: <strong>Adult - ${item.mask_adult ? `${item.mask_adult}` : 'access error'}/ Child - ${item.mask_child ? `${item.mask_child}` : 'access error'}</strong><br>
+    Address: <a href="https://www.google.com.tw/maps/place/${item.address}" target="_blank">${item.address}</a><br>
+    Distance: ${this.getDistance(x, y, userLng, userLat)} km<br>
+    Tele: ${item.phone}<br>
+    Note: ${item.note}<br>
+    <small>Last updated: ${item.updated}</small>`).openPopup();
+    }
+  },
 };
 
 export default {
@@ -587,18 +671,20 @@ export default {
     masksort: ['adultTrue', 'childTrue'],
     sortOpt: '1',
     userLocation: {},
-    userLat: {},
-    userLng: {},
+    userLat: 0,
+    userLng: 0,
   }),
   created() {
     navigator.geolocation.getCurrentPosition((pos) => {
       this.userLocation = pos.coords;
     });
-    this.userLat = this.userLocation.latitude;
-    this.userLng = this.userLocation.longitude;
-    // for developing we change the user's location to Xinyi District's position
-    this.userLat = 25.033671;
-    this.userLng = 121.56442;
+    if (this.userLat > 22 && this.userLat < 26 && this.userLng > 120 && this.userLng < 122) {
+      this.userLat = this.userLocation.latitude;
+      this.userLng = this.userLocation.longitude;
+    } else {
+      this.userLat = 25.033671;
+      this.userLng = 121.56442;
+    }
   },
   methods: {
     datasort(data) {
@@ -659,7 +745,7 @@ export default {
           pharmacy.geometry.coordinates[1], userLng, userLat) < Number(this.inlineRadioOptions));
       pharmacies.forEach((pharmacy) => {
         const { properties, geometry } = pharmacy;
-        if (this.masksort.length === 0 || this.masksort[0] === 'adultTrue' || this.masksort.length === 2) {
+        if (this.masksort.length === 1 && this.masksort[0] === 'adultTrue') {
           osm.addMapMarker(
             geometry.coordinates[0],
             geometry.coordinates[1],
@@ -668,6 +754,13 @@ export default {
         }
         if (this.masksort.length === 1 && this.masksort[0] === 'childTrue') {
           osm.addMapMarker1(
+            geometry.coordinates[0],
+            geometry.coordinates[1],
+            properties,
+          );
+        }
+        if (this.masksort.length === 2) {
+          osm.addMapMarker2(
             geometry.coordinates[0],
             geometry.coordinates[1],
             properties,
@@ -685,6 +778,10 @@ export default {
     penTo1(pharmacy) {
       const { properties, geometry } = pharmacy;
       osm.penTo1(geometry.coordinates[0], geometry.coordinates[1], properties);
+    },
+    penTo2(pharmacy) {
+      const { properties, geometry } = pharmacy;
+      osm.penTo2(geometry.coordinates[0], geometry.coordinates[1], properties);
     },
     updateSelect() {
       this.removeMarker();
